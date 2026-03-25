@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DATA//VAULT · Hushh × Kai</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  /* ── Glassmorphism palette ── */
+  --bg:        #0F172A;
+  --bg2:       #111827;
+  --grad-start:#0F172A;
+  --grad-end:  #1a1040;
+
+  /* Glass surfaces */
+  --glass:     rgba(255,255,255,0.05);
+  --glass-md:  rgba(255,255,255,0.08);
+  --glass-hi:  rgba(255,255,255,0.12);
+  --glass-border: rgba(255,255,255,0.10);
+  --glass-border-hi: rgba(255,255,255,0.18);
+
+  /* Accent colors */
+  --green:     #10B981;
+  --green-glow:rgba(16,185,129,0.35);
+  --green-dim: rgba(16,185,129,0.12);
+  --amber:     #F59E0B;
+  --amber-dim: rgba(245,158,11,0.12);
+  --red:       #EF4444;
+  --red-dim:   rgba(239,68,68,0.12);
+  --blue:      #6366F1;
+  --blue-dim:  rgba(99,102,241,0.15);
+  --purple:    #8B5CF6;
+  --purple-dim:rgba(139,92,246,0.12);
+  --cyan:      #06B6D4;
+  --cyan-dim:  rgba(6,182,212,0.12);
+
+  /* Typography */
+  --text:      #F1F5F9;
+  --text-muted:#94A3B8;
+  --text-dim:  #475569;
+
+  --font:      'Plus Jakarta Sans', sans-serif;
+  --mono:      'JetBrains Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  min-height: 100vh;
+  overflow-x: hidden;
+  /* soft gradient background */
+  background: linear-gradient(135deg, #0F172A 0%, #1a1040 40%, #0d1f3a 70%, #0F172A 100%);
+  background-attachment: fixed;
+}
+
+/* ── AMBIENT GLOW ORBS ── */
+body::before, body::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(100px);
+  pointer-events: none;
+  z-index: 0;
+}
+body::before {
+  width: 600px; height: 600px;
+  top: -200px; left: -150px;
+  background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+}
+body::after {
+  width: 500px; height: 500px;
+  bottom: -100px; right: -100px;
+  background: radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 70%);
+}
+
+/* ── CANVAS BACKGROUNDS ── */
+#bg-canvas, #particle-canvas {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+  opacity: 0.35;
+}
+
+/* ── BOOT SCREEN ── */
+#boot-screen {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  z-index: 10000;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 2rem;
+  transition: opacity 0.7s, visibility 0.7s;
+}
+#boot-screen.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+
+.boot-logo {
+  font-family: var(--font);
+  font-size: clamp(1.6rem, 5vw, 3rem);
+  font-weight: 800;
+  background: linear-gradient(135deg, #F1F5F9, #8B5CF6);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  letter-spacing: -0.02em;
+}
+.boot-sub {
+  font-family: var(--mono); font-size: 0.75rem;
+  color: var(--text-muted); letter-spacing: 0.15em;
+}
+.boot-log {
+  font-family: var(--mono); font-size: 0.72rem;
+  color: var(--green); text-align: left;
+  width: min(480px, 90vw); line-height: 2;
+}
+.boot-progress {
+  width: min(480px, 90vw); height: 3px;
+  background: rgba(255,255,255,0.08); border-radius: 100px; overflow: hidden;
+}
+.boot-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue), var(--purple));
+  box-shadow: 0 0 10px var(--blue);
+  width: 0%; transition: width 0.1s linear; border-radius: 100px;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 1000; padding: 0 2rem; height: 62px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(15,23,42,0.75);
+  backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.nav-logo {
+  font-family: var(--font); font-size: 0.95rem; font-weight: 800;
+  color: var(--text); letter-spacing: -0.01em;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.nav-logo .sep { color: var(--text-dim); font-weight: 400; }
+.nav-logo .kai {
+  background: linear-gradient(135deg, var(--purple), var(--cyan));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+.nav-links { display: flex; gap: 0.3rem; }
+.nav-btn {
+  background: transparent; border: 1px solid transparent;
+  color: var(--text-muted); font-family: var(--font);
+  font-size: 0.82rem; font-weight: 500; padding: 0.45rem 1rem;
+  border-radius: 8px; cursor: pointer; transition: all 0.2s;
+}
+.nav-btn:hover {
+  color: var(--text); background: var(--glass);
+  border-color: var(--glass-border);
+}
+.nav-btn.active {
+  color: white; background: var(--glass-md);
+  border-color: var(--glass-border-hi);
+  box-shadow: 0 2px 16px rgba(99,102,241,0.2);
+}
+
+/* ── PAGES ── */
+.page { display: none; min-height: 100vh; padding-top: 62px; position: relative; z-index: 1; }
+.page.active { display: block; }
+#page-home.active { display: block; }
+
+/* ── GLASS CARD MIXIN ── */
+.glass-card {
+  background: var(--glass);
+  backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+  transition: all 0.25s;
+}
+.glass-card:hover {
+  background: var(--glass-md);
+  border-color: var(--glass-border-hi);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+/* ── HERO ── */
+.hero-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% -5%, rgba(99,102,241,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 30% 40% at 80% 70%, rgba(139,92,246,0.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+.hero-content {
+  position: relative; z-index: 1;
+  max-width: 960px; margin: 0 auto;
+  padding: 6rem 2rem 5rem; text-align: center;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: var(--glass); backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border-hi);
+  color: var(--text-muted); font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 0.45rem 1.2rem; border-radius: 100px; margin-bottom: 2.5rem;
+}
+.badge-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green); box-shadow: 0 0 8px var(--green);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+.hero-title {
+  font-size: clamp(2.8rem, 8vw, 5.5rem);
+  font-weight: 800; line-height: 1.06;
+  margin-bottom: 1.5rem; letter-spacing: -0.03em;
+}
+.hero-title .line1 { color: var(--text); display: block; }
+.hero-title .line2 {
+  background: linear-gradient(135deg, var(--green) 0%, var(--cyan) 50%, var(--purple) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: block;
+}
+.hero-sub {
+  font-size: 1.1rem; color: var(--text-muted);
+  max-width: 540px; margin: 0 auto 3rem;
+  line-height: 1.75; font-weight: 400;
+}
+.hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 4rem; }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--blue), var(--purple));
+  color: white; border: none; padding: 0.9rem 2.2rem;
+  border-radius: 12px; font-family: var(--font);
+  font-size: 0.9rem; font-weight: 700; cursor: pointer;
+  transition: all 0.25s;
+  box-shadow: 0 8px 30px rgba(99,102,241,0.35);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 40px rgba(99,102,241,0.5);
+}
+.btn-secondary {
+  background: var(--glass); backdrop-filter: blur(12px);
+  color: var(--text); border: 1px solid var(--glass-border-hi);
+  padding: 0.9rem 2.2rem; border-radius: 12px;
+  font-family: var(--font); font-size: 0.9rem; font-weight: 700;
+  cursor: pointer; transition: all 0.25s;
+}
+.btn-secondary:hover {
+  background: var(--glass-md); transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+}
+
+/* Stats row */
+.stats-row {
+  display: flex; max-width: 680px; margin: 0 auto 4rem;
+  background: var(--glass); backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border); border-radius: 18px; overflow: hidden;
+}
+.stat-item {
+  flex: 1; padding: 1.8rem 1.5rem; text-align: center;
+  border-right: 1px solid var(--glass-border);
+}
+.stat-item:last-child { border-right: none; }
+.stat-value {
+  font-size: 2rem; font-weight: 800;
+  background: linear-gradient(135deg, var(--green), var(--cyan));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 0.4rem;
+}
+.stat-label {
+  font-size: 0.72rem; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500;
+}
+
+/* Feature cards */
+.features {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 1px; max-width: 900px; margin: 0 auto;
+  background: var(--glass-border); border: 1px solid var(--glass-border);
+  border-radius: 18px; overflow: hidden;
+}
+.feature-card {
+  background: var(--glass); backdrop-filter: blur(20px);
+  padding: 2rem 1.8rem; transition: background 0.2s;
+}
+.feature-card:hover { background: var(--glass-md); }
+.feature-icon { font-size: 1.6rem; margin-bottom: 1rem; }
+.feature-title {
+  font-size: 0.9rem; font-weight: 700; margin-bottom: 0.6rem;
+  color: var(--text);
+}
+.feature-desc { font-size: 0.84rem; color: var(--text-muted); line-height: 1.65; }
+
+/* ── PAGE HEADER ── */
+.page-header {
+  padding: 2.5rem 3rem 1.5rem; max-width: 1300px; margin: 0 auto;
+  border-bottom: 1px solid var(--glass-border);
+}
+.page-title {
+  font-size: 1.6rem; font-weight: 800; margin-bottom: 0.4rem;
+  letter-spacing: -0.02em; color: var(--text);
+}
+.page-subtitle { color: var(--text-muted); font-size: 0.88rem; }
+.page-header-tag {
+  position: absolute; top: 2.5rem; right: 3rem;
+  font-family: var(--mono); font-size: 0.6rem;
+  color: var(--text-dim); letter-spacing: 0.1em;
+}
+
+/* ── VALUE BAR ── */
+.value-bar {
+  margin: 1.5rem 3rem;
+  background: var(--glass); backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border-hi);
+  border-radius: 18px; padding: 1.6rem 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 1.2rem;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 8px 32px rgba(0,0,0,0.2);
+}
+.value-bar-label {
+  font-family: var(--mono); font-size: 0.6rem; color: var(--green);
+  letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.4rem;
+}
+.value-main { display: flex; align-items: baseline; gap: 0.5rem; }
+.value-amount {
+  font-size: 2.8rem; font-weight: 800;
+  background: linear-gradient(135deg, var(--green), var(--cyan));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.value-period { color: var(--text-muted); font-size: 0.85rem; }
+.value-meta { color: var(--text-muted); font-size: 0.75rem; margin-top: 0.2rem; }
+
+.progress-outer { flex: 1; min-width: 200px; }
+.progress-label {
+  display: flex; justify-content: space-between;
+  font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 500;
+}
+.progress-track {
+  height: 8px; background: rgba(255,255,255,0.06);
+  border-radius: 100px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue), var(--green));
+  border-radius: 100px;
+  transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 0 12px rgba(16,185,129,0.5);
+}
+
+.value-actions { display: flex; gap: 0.6rem; }
+.pill-btn {
+  padding: 0.5rem 1.1rem; border-radius: 8px;
+  font-family: var(--font); font-size: 0.78rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+  border: 1px solid var(--glass-border-hi);
+  background: var(--glass); backdrop-filter: blur(12px);
+  color: var(--text-muted);
+}
+.pill-btn:hover { color: var(--text); background: var(--glass-md); border-color: rgba(255,255,255,0.25); }
+.pill-btn.danger:hover { color: var(--red); border-color: rgba(239,68,68,0.4); background: var(--red-dim); }
+
+/* ── DATA GRID ── */
+.data-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(270px,1fr));
+  gap: 1rem; padding: 1rem 3rem 3rem; max-width: 1300px; margin: 0 auto;
+}
+.data-card {
+  background: var(--glass); backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 18px; padding: 1.4rem;
+  transition: all 0.25s; position: relative; overflow: hidden; cursor: pointer;
+}
+.data-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--blue), var(--purple), var(--cyan));
+  transform: scaleX(0); transform-origin: left; transition: transform 0.3s;
+  border-radius: 18px 18px 0 0;
+}
+.data-card.on { border-color: rgba(99,102,241,0.3); box-shadow: 0 8px 32px rgba(99,102,241,0.12); }
+.data-card.on::before { transform: scaleX(1); }
+.data-card:hover { background: var(--glass-md); transform: translateY(-3px); box-shadow: 0 16px 48px rgba(0,0,0,0.25); }
+
+.dc-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.9rem; }
+.dc-icon-wrap {
+  width: 42px; height: 42px; border-radius: 12px;
+  background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.2);
+  display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+}
+.dc-toggle {
+  width: 44px; height: 24px;
+  background: rgba(255,255,255,0.08); border-radius: 100px;
+  position: relative; cursor: pointer;
+  transition: background 0.3s; border: 1px solid var(--glass-border-hi); flex-shrink: 0;
+}
+.dc-toggle.on { background: var(--blue); border-color: var(--blue); box-shadow: 0 0 14px rgba(99,102,241,0.4); }
+.dc-toggle::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: rgba(255,255,255,0.6);
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), background 0.3s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+.dc-toggle.on::after { transform: translateX(20px); background: white; }
+
+.dc-enc-label {
+  font-family: var(--mono); font-size: 0.55rem;
+  color: var(--text-dim); letter-spacing: 0.1em; margin-bottom: 0.5rem;
+}
+.dc-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--text); }
+.dc-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.55; margin-bottom: 0.9rem; }
+.dc-footer { display: flex; align-items: center; justify-content: space-between; }
+.dc-sens {
+  font-size: 0.68rem; font-weight: 600; padding: 3px 9px;
+  border-radius: 100px; border: 1px solid;
+}
+.dc-value { font-family: var(--mono); font-size: 0.88rem; font-weight: 500; }
+.dc-value.on { color: var(--green); }
+.dc-value.off { color: var(--text-dim); }
+
+/* ── INSIGHT BOX ── */
+.insight-section { max-width: 1300px; margin: 1rem auto; padding: 0 3rem; }
+.insight-box {
+  background: rgba(99,102,241,0.06); backdrop-filter: blur(20px);
+  border: 1px solid rgba(99,102,241,0.2); border-left: 3px solid var(--blue);
+  border-radius: 14px; padding: 1.3rem 1.6rem;
+}
+.insight-label {
+  font-size: 0.68rem; font-weight: 700; color: var(--blue);
+  text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.6rem;
+}
+.insight-text { font-size: 0.92rem; color: var(--text-muted); line-height: 1.8; }
+.insight-text strong { color: var(--text); }
+
+/* ── WHO BUYS PAGE ── */
+.buyers-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(340px,1fr));
+  gap: 1.2rem; padding: 0 3rem 3rem; max-width: 1300px; margin: 0 auto;
+}
+.buyer-cat-card {
+  background: var(--glass); backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 18px; overflow: hidden;
+  transition: all 0.25s;
+}
+.buyer-cat-card:hover { background: var(--glass-md); transform: translateY(-2px); box-shadow: 0 16px 48px rgba(0,0,0,0.25); }
+.buyer-cat-card.locked { opacity: 0.45; }
+
+.bcc-header {
+  padding: 1.2rem 1.4rem; border-bottom: 1px solid var(--glass-border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(255,255,255,0.03);
+}
+.bcc-left { display: flex; align-items: center; gap: 0.8rem; }
+.bcc-icon {
+  font-size: 1.2rem; width: 40px; height: 40px; border-radius: 12px;
+  background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.18);
+  display: flex; align-items: center; justify-content: center;
+}
+.bcc-name { font-size: 0.88rem; font-weight: 700; color: var(--text); }
+.bcc-val { font-family: var(--mono); font-size: 0.95rem; font-weight: 600; color: var(--green); }
+.bcc-val.locked-val { color: var(--text-dim); }
+
+.bcc-buyers { padding: 0.9rem 1.4rem; display: flex; flex-direction: column; gap: 0.6rem; }
+.buyer-item {
+  display: flex; gap: 0.7rem; align-items: flex-start; padding: 0.75rem 0.9rem;
+  background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
+  border-radius: 10px; transition: all 0.2s;
+}
+.buyer-item:hover { background: var(--glass); border-color: var(--glass-border-hi); }
+.buyer-type-badge {
+  font-size: 0.65rem; font-weight: 600; padding: 2px 8px; border-radius: 6px;
+  background: var(--blue-dim); color: #818CF8; border: 1px solid rgba(99,102,241,0.25);
+  white-space: nowrap; flex-shrink: 0; margin-top: 2px; letter-spacing: 0.04em;
+}
+.buyer-name { font-weight: 700; font-size: 0.85rem; margin-bottom: 0.2rem; color: var(--text); }
+.buyer-reason { font-size: 0.77rem; color: var(--text-muted); line-height: 1.5; }
+.locked-overlay {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 1rem; color: var(--text-dim); font-size: 0.82rem;
+}
+
+/* ── FILTER TABS ── */
+.filter-tabs {
+  display: flex; gap: 0.4rem; padding: 1.2rem 3rem;
+  max-width: 1300px; margin: 0 auto;
+}
+.filter-tab {
+  padding: 0.5rem 1.2rem; border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass); backdrop-filter: blur(12px);
+  color: var(--text-muted); font-family: var(--font);
+  font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.filter-tab.active {
+  background: var(--blue-dim); border-color: rgba(99,102,241,0.4); color: #818CF8;
+  box-shadow: 0 0 16px rgba(99,102,241,0.15);
+}
+
+/* ── AUDIT PAGE ── */
+#page-audit.active { display: block; }
+.audit-container { max-width: 1000px; margin: 0 auto; padding: 2rem 3rem 3rem; }
+.audit-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap;
+}
+.audit-count { font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted); }
+.audit-count span { color: var(--cyan); }
+.audit-clear-btn {
+  padding: 0.45rem 1.1rem; border: 1px solid rgba(239,68,68,0.35);
+  background: var(--red-dim); color: var(--red);
+  font-family: var(--font); font-size: 0.78rem; font-weight: 600;
+  cursor: pointer; border-radius: 8px; transition: all 0.2s;
+}
+.audit-clear-btn:hover { background: rgba(239,68,68,0.2); box-shadow: 0 0 16px rgba(239,68,68,0.2); }
+
+.audit-stats {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 1rem; margin-bottom: 2rem;
+}
+.audit-stat-card {
+  background: var(--glass); backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border); border-radius: 14px;
+  padding: 1.2rem 1.4rem; position: relative; overflow: hidden;
+}
+.audit-stat-card::before { content:''; position:absolute; top:0;left:0;right:0; height:2px; border-radius:14px 14px 0 0; }
+.audit-stat-card.c-cyan::before { background: var(--cyan); box-shadow: 0 2px 8px var(--cyan); }
+.audit-stat-card.c-green::before { background: var(--green); box-shadow: 0 2px 8px var(--green); }
+.audit-stat-card.c-red::before { background: var(--red); box-shadow: 0 2px 8px var(--red); }
+.audit-stat-card.c-purple::before { background: var(--purple); box-shadow: 0 2px 8px var(--purple); }
+.audit-stat-val { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.3rem; }
+.c-cyan .audit-stat-val { color: var(--cyan); }
+.c-green .audit-stat-val { color: var(--green); }
+.c-red .audit-stat-val { color: var(--red); }
+.c-purple .audit-stat-val { color: var(--purple); }
+.audit-stat-label { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500; }
+
+.audit-log-table {
+  background: var(--glass); backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border); border-radius: 14px; overflow: hidden;
+}
+.audit-header-row {
+  display: grid; grid-template-columns: 160px 1fr 120px 90px 100px;
+  background: rgba(255,255,255,0.04); border-bottom: 1px solid var(--glass-border);
+  padding: 0.8rem 1.4rem; gap: 1rem;
+}
+.audit-col-head {
+  font-family: var(--mono); font-size: 0.62rem; color: var(--cyan);
+  text-transform: uppercase; letter-spacing: 0.12em; font-weight: 500;
+}
+.audit-log-rows { max-height: 580px; overflow-y: auto; }
+.audit-log-rows::-webkit-scrollbar { width: 4px; }
+.audit-log-rows::-webkit-scrollbar-track { background: transparent; }
+.audit-log-rows::-webkit-scrollbar-thumb { background: var(--glass-border-hi); border-radius: 100px; }
+.audit-row {
+  display: grid; grid-template-columns: 160px 1fr 120px 90px 100px;
+  padding: 0.8rem 1.4rem; gap: 1rem;
+  border-bottom: 1px solid var(--glass-border);
+  transition: background 0.15s; align-items: center;
+  animation: slideInRow 0.3s ease forwards;
+}
+@keyframes slideInRow { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
+.audit-row:last-child { border-bottom: none; }
+.audit-row:hover { background: rgba(255,255,255,0.03); }
+.audit-ts { font-family: var(--mono); font-size: 0.65rem; color: var(--text-muted); }
+.audit-category { font-size: 0.88rem; font-weight: 600; color: var(--text); display:flex; align-items:center; gap:0.4rem; }
+.audit-action { font-family: var(--mono); font-size: 0.68rem; font-weight: 600; text-transform: uppercase; }
+.audit-action.granted { color: var(--green); }
+.audit-action.revoked { color: var(--red); }
+.audit-value { font-family: var(--mono); font-size: 0.78rem; color: var(--text-muted); }
+.audit-hash { font-family: var(--mono); font-size: 0.6rem; color: var(--text-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.audit-empty { padding:4rem 2rem; text-align:center; color:var(--text-dim); font-size:0.85rem; line-height:2; }
+.audit-empty .empty-icon { font-size:2rem; margin-bottom:1rem; opacity:0.4; display:block; }
+.cursor { display:inline-block; width:2px; height:0.9em; background:var(--cyan); margin-left:2px; vertical-align:text-bottom; animation:blink 1s step-end infinite; }
+
+/* ── AI HUB PAGE ── */
+#page-ai.active { display: block; }
+.ai-hub-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+  max-width: 1200px; margin: 0 auto; padding: 1.5rem 3rem 3rem;
+}
+.ai-hub-grid .full-width { grid-column: 1 / -1; }
+
+.ai-card {
+  background: var(--glass); backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border); border-radius: 18px; overflow: hidden;
+  position: relative;
+}
+.ai-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--blue), var(--purple), var(--cyan));
+  border-radius: 18px 18px 0 0;
+}
+.ai-card-header {
+  padding: 1.1rem 1.4rem 0.9rem; border-bottom: 1px solid var(--glass-border);
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+}
+.ai-card-title { font-size: 0.88rem; font-weight: 700; color: var(--text); }
+.ai-card-badge {
+  font-family: var(--mono); font-size: 0.58rem; padding: 3px 9px;
+  border-radius: 6px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+}
+.ai-card-badge.powered { background: var(--purple-dim); border: 1px solid rgba(139,92,246,0.3); color: var(--purple); }
+.ai-card-badge.live { background: var(--green-dim); border: 1px solid rgba(16,185,129,0.3); color: var(--green); animation: badgePulse 2s infinite; }
+@keyframes badgePulse { 0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0.3)} 50%{box-shadow:0 0 0 4px rgba(16,185,129,0)} }
+.ai-card-body { padding: 1.2rem 1.4rem; }
+
+.ai-run-btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.55rem 1.3rem;
+  background: var(--glass-md); backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border-hi); color: var(--text);
+  font-family: var(--font); font-size: 0.78rem; font-weight: 600;
+  cursor: pointer; border-radius: 8px; transition: all 0.2s;
+}
+.ai-run-btn:hover { background: rgba(99,102,241,0.15); border-color: rgba(99,102,241,0.4); color: #818CF8; transform: translateY(-1px); }
+.ai-run-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.ai-run-btn .btn-icon { font-size: 0.9rem; }
+
+.ai-output {
+  margin-top: 1rem; min-height: 80px;
+  background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border);
+  border-radius: 10px; padding: 1rem 1.2rem; position: relative; overflow: hidden;
+}
+.ai-output-text { font-size: 0.9rem; color: var(--text-muted); line-height: 1.8; }
+.ai-output-text strong { color: var(--text); }
+.ai-output-text .highlight-cyan { color: var(--cyan); font-family: var(--mono); font-size: 0.85rem; }
+.ai-output-text .highlight-red { color: var(--red); font-weight: 700; }
+.ai-output-text .highlight-green { color: var(--green); font-family: var(--mono); }
+.ai-output-text .highlight-mag { color: var(--purple); }
+.ai-placeholder { font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim); display:flex; align-items:center; gap:0.5rem; }
+.ai-placeholder::before { content: '▸'; color: var(--text-dim); }
+
+.ai-streaming { display:inline-flex; gap:3px; align-items:center; margin-left:6px; }
+.ai-streaming span { width:4px;height:4px;border-radius:50%;background:var(--blue);animation:dotBounce 1.2s infinite; }
+.ai-streaming span:nth-child(2){animation-delay:0.2s}
+.ai-streaming span:nth-child(3){animation-delay:0.4s}
+@keyframes dotBounce{0%,80%,100%{transform:scale(0.6);opacity:0.3}40%{transform:scale(1);opacity:1}}
+
+/* Shadow profile */
+.shadow-tags { display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.8rem; }
+.shadow-tag {
+  font-family: var(--mono); font-size: 0.62rem; padding: 3px 10px;
+  border-radius: 6px; border: 1px solid; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600;
+}
+.shadow-tag.high { color: var(--red); border-color: rgba(239,68,68,0.3); background: var(--red-dim); }
+.shadow-tag.med { color: var(--amber); border-color: rgba(245,158,11,0.3); background: var(--amber-dim); }
+.shadow-tag.low { color: var(--green); border-color: rgba(16,185,129,0.3); background: var(--green-dim); }
+
+/* Risk gauge */
+.risk-gauge-wrap { display:flex;flex-direction:column;align-items:center;gap:0.8rem;padding:0.5rem 0; }
+.risk-gauge-svg { width:180px;height:100px; }
+.risk-score-num { font-size:2.4rem;font-weight:800;text-align:center;line-height:1; }
+.risk-score-label { font-family:var(--mono);font-size:0.65rem;letter-spacing:0.12em;text-align:center;text-transform:uppercase;color:var(--text-muted); }
+.risk-bars { width:100%;display:flex;flex-direction:column;gap:0.5rem;margin-top:0.5rem; }
+.risk-bar-row { display:flex;align-items:center;gap:0.6rem; }
+.risk-bar-name { font-family:var(--mono);font-size:0.6rem;color:var(--text-muted);width:90px;flex-shrink:0;letter-spacing:0.04em; }
+.risk-bar-track { flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden; }
+.risk-bar-fill { height:100%;border-radius:100px;transition:width 1s ease; }
+.risk-bar-val { font-family:var(--mono);font-size:0.62rem;width:28px;text-align:right;flex-shrink:0; }
+
+/* Forecast */
+.forecast-container { position:relative; }
+.forecast-labels { display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.58rem;color:var(--text-dim);margin-top:0.4rem; }
+.forecast-canvas { width:100%;height:180px;display:block; }
+.forecast-legend { display:flex;gap:1.2rem;margin-top:0.8rem;flex-wrap:wrap; }
+.forecast-legend-item { display:flex;align-items:center;gap:0.4rem;font-family:var(--mono);font-size:0.6rem;color:var(--text-muted); }
+.legend-dot { width:8px;height:3px;border-radius:100px; }
+
+/* Breach ticker */
+.breach-ticker {
+  background: rgba(239,68,68,0.04); border: 1px solid rgba(239,68,68,0.15);
+  border-radius: 12px; overflow: hidden;
+}
+.breach-ticker-header {
+  display:flex;align-items:center;gap:0.6rem;padding:0.6rem 1rem;
+  border-bottom:1px solid rgba(239,68,68,0.1); background:rgba(239,68,68,0.05);
+}
+.breach-ticker-label { font-family:var(--mono);font-size:0.62rem;color:var(--red);letter-spacing:0.1em;text-transform:uppercase; }
+.breach-dot { width:6px;height:6px;border-radius:50%;background:var(--red);box-shadow:0 0 8px var(--red); animation:blink 0.8s step-end infinite; }
+.breach-events { max-height:200px;overflow-y:auto; }
+.breach-event {
+  display:flex;align-items:center;gap:0.8rem;padding:0.55rem 1rem;
+  border-bottom:1px solid rgba(239,68,68,0.07);
+  animation:slideInRow 0.4s ease forwards; font-family:var(--mono); font-size:0.65rem;
+}
+.breach-event:last-child{border-bottom:none}
+.breach-time{color:var(--text-muted);white-space:nowrap;flex-shrink:0}
+.breach-corp{color:var(--red);flex-shrink:0;font-weight:600}
+.breach-action{color:var(--text);flex:1}
+.breach-cat{color:var(--text-dim);flex-shrink:0}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+.fade-up{animation:fadeUp 0.5s ease forwards}
+.fade-up-1{animation-delay:0.1s;opacity:0}
+.fade-up-2{animation-delay:0.2s;opacity:0}
+.fade-up-3{animation-delay:0.3s;opacity:0}
+.fade-up-4{animation-delay:0.4s;opacity:0}
+.fade-up-5{animation-delay:0.5s;opacity:0}
+
+/* ── FOOTER ── */
+.footer {
+  text-align:center; padding:1.5rem; color:var(--text-dim);
+  font-size:0.78rem; border-top:1px solid var(--glass-border); margin-top:2rem;
+}
+
+/* Responsive */
+@media(max-width:768px){
+  .ai-hub-grid{grid-template-columns:1fr;padding:1rem 1.5rem 2rem}
+  .ai-hub-grid .full-width{grid-column:1}
+  nav{padding:0 1rem}
+  .nav-logo{font-size:0.8rem}
+  .nav-btn{padding:0.35rem 0.6rem;font-size:0.75rem}
+  .hero-content{padding:4rem 1.5rem 3rem}
+  .features{grid-template-columns:1fr}
+  .stats-row{flex-direction:column}
+  .data-grid{padding:0 1.5rem 2rem;grid-template-columns:1fr}
+  .buyers-grid{padding:0 1.5rem 2rem;grid-template-columns:1fr}
+  .page-header{padding:2rem 1.5rem 1rem}
+  .value-bar{margin:1rem 1.5rem}
+  .filter-tabs{padding:1rem 1.5rem}
+  .insight-section{padding:0 1.5rem}
+  .audit-container{padding:1.5rem}
+  .audit-stats{grid-template-columns:repeat(2,1fr)}
+  .audit-header-row,.audit-row{grid-template-columns:130px 1fr 100px}
+  .audit-col-head:nth-child(4),.audit-col-head:nth-child(5),.audit-value,.audit-hash{display:none}
+  .page-header-tag{display:none}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<canvas id="particle-canvas"></canvas>
+
+<!-- BOOT SCREEN -->
+<div id="boot-screen">
+  <div class="boot-logo">DATA//VAULT</div>
+  <div class="boot-sub">Hushh × Kai · Secure Data Intelligence</div>
+  <div class="boot-log" id="boot-log"></div>
+  <div class="boot-progress"><div class="boot-progress-fill" id="boot-progress-fill"></div></div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">🔐 DATA//VAULT <span class="sep">·</span> <span class="kai">Kai</span></div>
+  <div class="nav-links">
+    <button class="nav-btn active" onclick="showPage('home')">Home</button>
+    <button class="nav-btn" onclick="showPage('explorer')">My Data</button>
+    <button class="nav-btn" onclick="showPage('buyers')">Who Buys?</button>
+    <button class="nav-btn" onclick="showPage('audit')">Audit Log</button>
+    <button class="nav-btn" style="color:#A78BFA;border-color:rgba(139,92,246,0.35);background:rgba(139,92,246,0.08)" onclick="showPage('ai')">✦ Kai AI</button>
+  </div>
+</nav>
+
+<!-- PAGE 1: HOME -->
+<div class="page active" id="page-home">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-badge fade-up fade-up-1">
+      <span class="badge-dot"></span>
+      Hushh × Kai · Challenge 05 · Personal Data Value
+    </div>
+    <h1 class="hero-title fade-up fade-up-2">
+      <span class="line1">Your Data.</span>
+      <span class="line2">Your Value.</span>
+    </h1>
+    <p class="hero-sub fade-up fade-up-3">
+      Every day, corporations harvest your personal data — silently, without consent, without compensation. It's time to reclaim what's yours.
+    </p>
+    <div class="hero-cta fade-up fade-up-4">
+      <button class="btn-primary" onclick="showPage('explorer')">Explore My Data Value →</button>
+      <button class="btn-secondary" onclick="showPage('buyers')">See Who Buys It</button>
+    </div>
+    <div class="stats-row fade-up fade-up-5">
+      <div class="stat-item">
+        <div class="stat-value" id="home-stat-val">₹4,280</div>
+        <div class="stat-label">Monthly Data Value</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">8</div>
+        <div class="stat-label">Data Categories</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">24+</div>
+        <div class="stat-label">Corp Buyers Active</div>
+      </div>
+    </div>
+    <div class="features fade-up fade-up-5">
+      <div class="feature-card">
+        <div class="feature-icon">💎</div>
+        <div class="feature-title">See Your Value</div>
+        <div class="feature-desc">Discover exactly what your personal data is worth — broken down by category, in rupees per month.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <div class="feature-title">Control Consent</div>
+        <div class="feature-desc">Toggle each data channel on or off. Your value updates in real time. Revoke any token — instantly.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏢</div>
+        <div class="feature-title">Expose Buyers</div>
+        <div class="feature-desc">See exactly which corporations are buying your data and why — then decide if they've earned it.</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">Built for Hushh × Kai Hackathon 2026 · Challenge 05 · Personal Data Value Explorer</div>
+</div>
+
+<!-- PAGE 2: DATA EXPLORER -->
+<div class="page" id="page-explorer">
+  <div class="page-header" style="position:relative">
+    <h1 class="page-title">Your Data Portfolio</h1>
+    <p class="page-subtitle">Toggle consent channels — your monthly value syncs in real time.</p>
+    <div class="page-header-tag">Session ID: #<span id="session-id"></span></div>
+  </div>
+  <div class="value-bar" id="value-bar" style="margin:1.5rem 3rem">
+    <div>
+      <div class="value-bar-label">🟢 Value Unlocked</div>
+      <div class="value-main">
+        <span class="value-amount" id="total-value">₹4,280</span>
+        <span class="value-period">/month</span>
+      </div>
+      <div class="value-meta" id="value-meta">8 of 8 categories consented</div>
+    </div>
+    <div class="progress-outer">
+      <div class="progress-label">
+        <span>Consent Coverage</span>
+        <span id="pct-label">100%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:100%"></div>
+      </div>
+    </div>
+    <div class="value-actions">
+      <button class="pill-btn" onclick="setAll(true)">✓ Grant All</button>
+      <button class="pill-btn danger" onclick="setAll(false)">✗ Revoke All</button>
+    </div>
+  </div>
+  <div class="insight-section">
+    <div class="insight-box" id="insight-box">
+      <div class="insight-label">✦ Kai Analysis</div>
+      <div class="insight-text" id="insight-text">
+        You've consented to share all <strong>8 data categories</strong>, unlocking your full monthly value of <strong>₹4,280</strong>. Your most valuable assets are Health &amp; Fitness (₹890) and Financial Behavior (₹760) — these unlock personalised insurance, wellness plans, and smarter investment advice. Remember, on Hushh you can revoke any category at any time, instantly.
+      </div>
+    </div>
+  </div>
+  <div class="data-grid" id="data-grid"></div>
+  <div class="footer">Your data never leaves your device · Consent is yours to give — and revoke</div>
+</div>
+
+<!-- PAGE 3: WHO BUYS -->
+<div class="page" id="page-buyers">
+  <div class="page-header">
+    <h1 class="page-title">Who Actually Buys Your Data?</h1>
+    <p class="page-subtitle">Without Hushh, this happens silently. With Hushh, you decide — and get paid.</p>
+  </div>
+  <div class="filter-tabs">
+    <button class="filter-tab active" onclick="filterBuyers('all')">All Categories</button>
+    <button class="filter-tab" onclick="filterBuyers('consented')">✅ Consented</button>
+    <button class="filter-tab" onclick="filterBuyers('locked')">🔒 Locked</button>
+  </div>
+  <div class="buyers-grid" id="buyers-grid"></div>
+  <div class="footer">Data brokers & platforms extract ₹4,280/mo from the avg Indian user · On Hushh, that value flows back to you</div>
+</div>
+
+<!-- PAGE 4: AUDIT LOG -->
+<div class="page" id="page-audit">
+  <div class="page-header" style="position:relative">
+    <h1 class="page-title">Consent Audit Log</h1>
+    <p class="page-subtitle">Every consent action is immutably recorded with timestamp and hash.</p>
+    <div class="page-header-tag">Chain Integrity: Verified · SHA-256</div>
+  </div>
+  <div class="audit-container">
+    <div class="audit-stats" id="audit-stats">
+      <div class="audit-stat-card c-cyan"><div class="audit-stat-val" id="stat-total">0</div><div class="audit-stat-label">Total Events</div></div>
+      <div class="audit-stat-card c-green"><div class="audit-stat-val" id="stat-granted">0</div><div class="audit-stat-label">Access Granted</div></div>
+      <div class="audit-stat-card c-red"><div class="audit-stat-val" id="stat-revoked">0</div><div class="audit-stat-label">Access Revoked</div></div>
+      <div class="audit-stat-card c-purple"><div class="audit-stat-val" id="stat-value">₹0</div><div class="audit-stat-label">Current Value</div></div>
+    </div>
+    <div class="audit-toolbar">
+      <div class="audit-count">Displaying <span id="audit-event-count">0</span> consent events this session</div>
+      <button class="audit-clear-btn" onclick="clearAuditLog()">⚠ Clear Log</button>
+    </div>
+    <div class="audit-log-table">
+      <div class="audit-header-row">
+        <div class="audit-col-head">Timestamp</div>
+        <div class="audit-col-head">Data Category</div>
+        <div class="audit-col-head">Action</div>
+        <div class="audit-col-head">Value</div>
+        <div class="audit-col-head">TX Hash</div>
+      </div>
+      <div class="audit-log-rows" id="audit-log-rows">
+        <div class="audit-empty">
+          <span class="empty-icon">📋</span>
+          No events recorded yet — toggle data categories to begin logging<span class="cursor"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">Consent events are logged locally and never transmitted without your explicit authorization</div>
+</div>
+
+<!-- PAGE 5: KAI AI -->
+<div class="page" id="page-ai">
+  <div class="page-header" style="position:relative">
+    <h1 class="page-title">✦ Kai AI · Intelligence Hub</h1>
+    <p class="page-subtitle">Powered by Claude AI · Predictive analytics, risk scoring & data shadow profiling on your consent footprint.</p>
+    <div class="page-header-tag">Model: claude-sonnet-4-20250514 · Real-Time Inference</div>
+  </div>
+  <div class="ai-hub-grid">
+
+    <!-- DATA SHADOW PROFILE -->
+    <div class="ai-card full-width">
+      <div class="ai-card-header">
+        <div class="ai-card-title">🧠 Data Shadow Profile</div>
+        <div style="display:flex;gap:0.5rem;align-items:center">
+          <div class="ai-card-badge powered">Claude AI</div>
+          <button class="ai-run-btn" id="shadow-btn" onclick="runDataShadow()">
+            <span class="btn-icon">⚡</span> Generate My Profile
+          </button>
+        </div>
+      </div>
+      <div class="ai-card-body">
+        <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:1rem;line-height:1.6">
+          Claude AI analyzes your consent pattern and reconstructs how ad algorithms see you — your inferred identity, predicted behaviors, and market segment classification.
+        </p>
+        <div class="ai-output" id="shadow-output">
+          <div class="ai-placeholder">Awaiting analysis · Click Generate to run AI profiling</div>
+        </div>
+        <div class="shadow-tags" id="shadow-tags"></div>
+      </div>
+    </div>
+
+    <!-- RISK SCORE -->
+    <div class="ai-card">
+      <div class="ai-card-header">
+        <div class="ai-card-title">⚠️ Exploitation Risk Score</div>
+        <div style="display:flex;gap:0.5rem;align-items:center">
+          <div class="ai-card-badge live">Live</div>
+          <button class="ai-run-btn" id="risk-btn" onclick="runRiskScore()">
+            <span class="btn-icon">🔍</span> Scan Risk
+          </button>
+        </div>
+      </div>
+      <div class="ai-card-body">
+        <div class="risk-gauge-wrap">
+          <svg class="risk-gauge-svg" viewBox="0 0 180 100" id="risk-gauge-svg">
+            <defs>
+              <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#10B981"/>
+                <stop offset="50%" stop-color="#F59E0B"/>
+                <stop offset="100%" stop-color="#EF4444"/>
+              </linearGradient>
+            </defs>
+            <path d="M20 90 A70 70 0 0 1 160 90" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="12" stroke-linecap="round"/>
+            <path d="M20 90 A70 70 0 0 1 160 90" fill="none" stroke="url(#gaugeGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220" id="gauge-arc" style="transition:stroke-dashoffset 1.2s ease"/>
+            <line x1="90" y1="90" x2="90" y2="30" stroke="rgba(255,255,255,0.15)" stroke-width="3" stroke-linecap="round" id="gauge-needle" style="transform-origin:90px 90px;transform:rotate(-90deg);transition:transform 1.2s ease"/>
+            <circle cx="90" cy="90" r="6" fill="rgba(15,23,42,0.9)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+          </svg>
+          <div class="risk-score-num" id="risk-num" style="color:var(--text-dim)">--</div>
+          <div class="risk-score-label" id="risk-label">Run scan to assess risk</div>
+        </div>
+        <div class="risk-bars" id="risk-bars">
+          <div style="font-size:0.78rem;color:var(--text-dim);text-align:center;padding:0.5rem">Category risk breakdown appears here</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PREDICTIVE FORECAST -->
+    <div class="ai-card">
+      <div class="ai-card-header">
+        <div class="ai-card-title">🔮 12-Month Value Forecast</div>
+        <div style="display:flex;gap:0.5rem;align-items:center">
+          <div class="ai-card-badge powered">Claude AI</div>
+          <button class="ai-run-btn" id="forecast-btn" onclick="runForecast()">
+            <span class="btn-icon">📈</span> Forecast
+          </button>
+        </div>
+      </div>
+      <div class="ai-card-body">
+        <div class="forecast-container">
+          <canvas class="forecast-canvas" id="forecast-canvas"></canvas>
+          <div class="forecast-labels">
+            <span>JAN</span><span>FEB</span><span>MAR</span><span>APR</span><span>MAY</span><span>JUN</span>
+            <span>JUL</span><span>AUG</span><span>SEP</span><span>OCT</span><span>NOV</span><span>DEC</span>
+          </div>
+          <div class="forecast-legend">
+            <div class="forecast-legend-item"><div class="legend-dot" style="background:var(--cyan)"></div>Projected Value</div>
+            <div class="forecast-legend-item"><div class="legend-dot" style="background:var(--purple)"></div>Market Rate</div>
+          </div>
+        </div>
+        <div class="ai-output" id="forecast-output" style="margin-top:0.8rem">
+          <div class="ai-placeholder">Awaiting forecast · Click to run 12-month AI projection</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIVE BREACH FEED -->
+    <div class="ai-card full-width">
+      <div class="ai-card-header">
+        <div class="ai-card-title">🔴 Live Exploitation Feed</div>
+        <div style="display:flex;gap:0.5rem;align-items:center">
+          <div class="ai-card-badge live">Simulated Live</div>
+          <button class="ai-run-btn" id="breach-toggle-btn" onclick="toggleBreachFeed()" style="border-color:rgba(239,68,68,0.4);color:var(--red)">
+            <span class="btn-icon">▶</span> Start Feed
+          </button>
+        </div>
+      </div>
+      <div class="ai-card-body" style="padding-top:0.8rem">
+        <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.8rem;line-height:1.6">
+          Simulates what corporations are doing with your consented data right now — every second, in real time.
+        </p>
+        <div class="breach-ticker">
+          <div class="breach-ticker-header">
+            <div class="breach-dot" id="breach-dot" style="background:var(--text-dim);box-shadow:none;animation:none"></div>
+            <div class="breach-ticker-label" id="breach-ticker-label">Feed Offline · Start feed to monitor exploitation</div>
+          </div>
+          <div class="breach-events" id="breach-events">
+            <div style="padding:1rem;font-family:var(--mono);font-size:0.68rem;color:var(--text-dim)">No events yet. Start feed to see live corporate data access simulation.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="footer">Kai AI · Powered by Anthropic Claude · Predictions are illustrative projections based on your consent profile</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// CANVAS BACKGROUNDS (kept from original, toned down)
+// ══════════════════════════════════════════════════════
+(function() {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+  const GRID = 70; const nodes = []; const edges = [];
+  function buildGrid() {
+    nodes.length = 0; edges.length = 0;
+    const cols = Math.ceil(canvas.width/GRID)+2, rows = Math.ceil(canvas.height/GRID)+2;
+    for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+      const jx=(Math.random()-0.5)*12, jy=(Math.random()-0.5)*12;
+      nodes.push({x:c*GRID+jx, y:r*GRID+jy, pulse:Math.random()});
+      if(c>0&&Math.random()>0.4) edges.push([nodes.length-1,nodes.length-2]);
+      if(r>0&&Math.random()>0.4) edges.push([nodes.length-1,nodes.length-cols]);
+    }
+  }
+  buildGrid(); window.addEventListener('resize',buildGrid);
+  let t=0;
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.lineWidth=0.3;
+    edges.forEach(([a,b])=>{
+      if(!nodes[a]||!nodes[b]) return;
+      const pulse=(Math.sin(t*0.015+nodes[a].pulse*6.28)+1)/2;
+      ctx.strokeStyle=`rgba(99,102,241,${0.03+pulse*0.06})`;
+      ctx.beginPath(); ctx.moveTo(nodes[a].x,nodes[a].y); ctx.lineTo(nodes[b].x,nodes[b].y); ctx.stroke();
+    });
+    nodes.forEach(n=>{
+      const pulse=(Math.sin(t*0.02+n.pulse*6.28)+1)/2;
+      ctx.fillStyle=`rgba(139,92,246,${0.06+pulse*0.18})`;
+      ctx.beginPath(); ctx.arc(n.x,n.y,0.8+pulse*1.2,0,Math.PI*2); ctx.fill();
+    });
+    t++; requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+(function() {
+  const canvas = document.getElementById('particle-canvas');
+  const ctx = canvas.getContext('2d');
+  function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+  resize(); window.addEventListener('resize',resize);
+  const COLORS=['rgba(99,102,241,','rgba(16,185,129,','rgba(139,92,246,','rgba(6,182,212,'];
+  const COUNT=Math.min(70,Math.floor(window.innerWidth/18));
+  const particles=[];
+  for(let i=0;i<COUNT;i++){
+    const c=COLORS[Math.floor(Math.random()*COLORS.length)];
+    particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,vx:(Math.random()-0.5)*0.25,vy:(Math.random()-0.5)*0.25,r:0.8+Math.random()*1.6,alpha:0.25+Math.random()*0.4,color:c,phase:Math.random()*Math.PI*2});
+  }
+  let mouseX=canvas.width/2,mouseY=canvas.height/2,t=0;
+  document.addEventListener('mousemove',e=>{mouseX=e.clientX;mouseY=e.clientY;});
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p=>{
+      const dx=mouseX-p.x,dy=mouseY-p.y,dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<280){p.vx+=dx/dist*0.003;p.vy+=dy/dist*0.003;}
+      p.vx*=0.995;p.vy*=0.995;p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=canvas.width;if(p.x>canvas.width)p.x=0;
+      if(p.y<0)p.y=canvas.height;if(p.y>canvas.height)p.y=0;
+      const pulse=0.6+0.4*Math.sin(t*0.03+p.phase);
+      ctx.fillStyle=p.color+(p.alpha*pulse)+')';
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+    });
+    for(let i=0;i<particles.length;i++) for(let j=i+1;j<particles.length;j++){
+      const a=particles[i],b=particles[j],dx=a.x-b.x,dy=a.y-b.y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<130){ctx.strokeStyle=`rgba(99,102,241,${(1-d/130)*0.12})`;ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}
+    }
+    t++; requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── SESSION ID ────────────────────────────────────────────────────────────────
+document.getElementById('session-id').textContent = Math.random().toString(36).substr(2,8).toUpperCase();
+
+// ── BOOT SEQUENCE ─────────────────────────────────────────────────────────────
+const bootLines=[
+  '> Initializing DATA//VAULT secure interface...',
+  '> Loading encryption modules [AES-256-GCM]',
+  '> Establishing secure channel .............. OK',
+  '> Validating auth token ................... OK',
+  '> Loading data schemas [8 categories] ..... OK',
+  '> Privacy engine v3.1.4 ready',
+  '> Consent framework loaded',
+  '> All systems nominal — decrypting UI...',
+];
+let lineIdx=0,pct=0;
+const bootLog=document.getElementById('boot-log');
+const bootFill=document.getElementById('boot-progress-fill');
+function runBoot(){
+  if(lineIdx<bootLines.length){
+    const line=document.createElement('div'); line.textContent=bootLines[lineIdx++]; bootLog.appendChild(line);
+    pct=Math.min(100,Math.round((lineIdx/bootLines.length)*100));
+    bootFill.style.width=pct+'%';
+    setTimeout(runBoot,220+Math.random()*130);
+  } else { setTimeout(()=>document.getElementById('boot-screen').classList.add('hide'),400); }
+}
+setTimeout(runBoot,300);
+
+// ── CIPHER TEXT EFFECT ────────────────────────────────────────────────────────
+function cipherReveal(el){
+  const original=el.textContent;
+  const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
+  let frame=0;const total=18;
+  const interval=setInterval(()=>{
+    let result='';
+    for(let i=0;i<original.length;i++){
+      if(original[i]===' '){result+=' ';continue;}
+      result+=frame/total>i/original.length?original[i]:chars[Math.floor(Math.random()*chars.length)];
+    }
+    el.textContent=result; frame++;
+    if(frame>total){el.textContent=original;clearInterval(interval);}
+  },40);
+}
+
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const DATA=[
+  {id:'email',icon:'📧',name:'Email & Communications',desc:'Inbox patterns, sender networks, purchase receipts',value:420,sensitivity:'Medium',sensColor:'#F59E0B',buyers:[
+    {type:'Food Tech',name:'Swiggy / Zomato',reason:'Target food offers based on order history in receipts'},
+    {type:'E-commerce',name:'Amazon / Flipkart',reason:'Re-target based on purchase patterns & competitor receipts'},
+    {type:'Finance',name:'Fintech Apps',reason:'Detect subscriptions to offer better alternatives'},
+  ]},
+  {id:'location',icon:'📍',name:'Location & Movement',desc:'Home/work zones, commute routes, places visited',value:680,sensitivity:'High',sensColor:'#F97316',buyers:[
+    {type:'Retail',name:'Reliance / DMart',reason:'Push offers when you\'re near their stores'},
+    {type:'Mobility',name:'Ola / Uber',reason:'Predict rides & surge pricing based on commute patterns'},
+    {type:'Real Estate',name:'MagicBricks / 99acres',reason:'Target property ads based on where you live & work'},
+  ]},
+  {id:'shopping',icon:'🛍️',name:'Shopping & Purchases',desc:'Brands, categories, spend patterns, frequency',value:550,sensitivity:'Medium',sensColor:'#F59E0B',buyers:[
+    {type:'FMCG',name:'HUL / P&G',reason:'Understand brand loyalty and switching behaviour'},
+    {type:'Fashion',name:'Myntra / Nykaa',reason:'Fashion & beauty recommendations based on spend'},
+    {type:'Research',name:'Market Research Firms',reason:'Consumer behaviour reports sold to manufacturers'},
+  ]},
+  {id:'health',icon:'❤️',name:'Health & Fitness',desc:'Activity, sleep, nutrition and wellness data',value:890,sensitivity:'Very High',sensColor:'#EF4444',buyers:[
+    {type:'Insurance',name:'Star Health / HDFC Ergo',reason:'Risk-price premiums based on lifestyle signals'},
+    {type:'Pharma',name:'Sun Pharma / Abbott',reason:'Target OTC drug ads based on health patterns'},
+    {type:'HealthTech',name:'Apollo / Practo',reason:'Recommend doctors & tests based on symptoms & activity'},
+  ]},
+  {id:'finance',icon:'💳',name:'Financial Behavior',desc:'Spending categories, saving habits, financial goals',value:760,sensitivity:'Very High',sensColor:'#EF4444',buyers:[
+    {type:'Banking',name:'HDFC / ICICI Bank',reason:'Pre-approve loans & credit cards based on spend health'},
+    {type:'Investment',name:'Zerodha / Groww',reason:'Recommend investment products based on savings behaviour'},
+    {type:'Credit',name:'CIBIL / Experian',reason:'Enrich credit scores with alternative financial data'},
+  ]},
+  {id:'social',icon:'👥',name:'Social & Interests',desc:'Topics you engage with, communities, preferences',value:310,sensitivity:'Low',sensColor:'#10B981',buyers:[
+    {type:'Big Tech',name:'Meta / Google Ads',reason:'Hyper-target ads using interest graphs'},
+    {type:'Media',name:'Netflix / Hotstar',reason:'Recommend content & reduce churn'},
+    {type:'EdTech',name:'Byju\'s / Unacademy',reason:'Target course ads based on learning interests'},
+  ]},
+  {id:'device',icon:'📱',name:'Device & App Usage',desc:'App usage, screen time, browsing patterns',value:380,sensitivity:'Medium',sensColor:'#F59E0B',buyers:[
+    {type:'Telecom',name:'Jio / Airtel',reason:'Personalise data plans based on usage patterns'},
+    {type:'Advertising',name:'InMobi / MoPub',reason:'Target in-app ads to most-used apps'},
+    {type:'Tech',name:'App Developers',reason:'Understand drop-off points & UX improvements'},
+  ]},
+  {id:'identity',icon:'🪪',name:'Identity & Profile',desc:'Demographics, preferences, language, background',value:290,sensitivity:'Medium',sensColor:'#F59E0B',buyers:[
+    {type:'Politics',name:'Political Campaigns',reason:'Micro-target voters based on demographics'},
+    {type:'HR',name:'Naukri / LinkedIn',reason:'Build candidate profiles for headhunting'},
+    {type:'Marketing',name:'D2C Brands',reason:'Personalise brand messaging by demographic segment'},
+  ]},
+];
+
+const consent={};
+DATA.forEach(d=>consent[d.id]=true);
+const auditLog=[];
+
+function genHash(){return Array.from({length:8},()=>Math.floor(Math.random()*16).toString(16)).join('');}
+
+function logAuditEvent(categoryId,action){
+  const d=DATA.find(x=>x.id===categoryId); if(!d) return;
+  const now=new Date();
+  const ts=now.toLocaleTimeString('en-GB',{hour12:false})+'.'+String(now.getMilliseconds()).padStart(3,'0');
+  auditLog.unshift({id:categoryId,icon:d.icon,name:d.name,action,value:d.value,ts,hash:genHash()+genHash()});
+  renderAuditLog();
+}
+
+function renderAuditLog(){
+  const rows=document.getElementById('audit-log-rows');
+  const countEl=document.getElementById('audit-event-count');
+  if(!rows) return;
+  countEl.textContent=auditLog.length;
+  const granted=auditLog.filter(e=>e.action==='granted').length;
+  const revoked=auditLog.filter(e=>e.action==='revoked').length;
+  document.getElementById('stat-total').textContent=auditLog.length;
+  document.getElementById('stat-granted').textContent=granted;
+  document.getElementById('stat-revoked').textContent=revoked;
+  const total=DATA.filter(d=>consent[d.id]).reduce((s,d)=>s+d.value,0);
+  document.getElementById('stat-value').textContent='₹'+total.toLocaleString('en-IN');
+  if(auditLog.length===0){
+    rows.innerHTML=`<div class="audit-empty"><span class="empty-icon">📋</span>No events recorded yet — toggle data categories to begin logging<span class="cursor"></span></div>`;
+    return;
+  }
+  rows.innerHTML=auditLog.map(ev=>`
+    <div class="audit-row">
+      <div class="audit-ts">${ev.ts}</div>
+      <div class="audit-category"><span class="cat-icon">${ev.icon}</span>${ev.name}</div>
+      <div class="audit-action ${ev.action}">${ev.action==='granted'?'▲ Granted':'▼ Revoked'}</div>
+      <div class="audit-value">₹${ev.value}/mo</div>
+      <div class="audit-hash">${ev.hash}</div>
+    </div>`).join('');
+}
+
+function clearAuditLog(){
+  if(auditLog.length===0) return;
+  if(confirm('This will permanently erase all consent audit records. Continue?')){
+    auditLog.length=0; renderAuditLog();
+  }
+}
+
+const INSIGHTS={
+  high:"You've consented to share <strong>{count} data categories</strong>, unlocking <strong>₹{value}/month</strong>. Your top assets — Health & Finance — enable personalised insurance, smarter investments, and wellness plans tailored just for you. Remember, on Hushh you can revoke any category at any time, instantly.",
+  mid:"You're sharing <strong>{count} categories</strong> and unlocking <strong>₹{value}/month</strong>. You're leaving some value on the table — toggling on locked categories could unlock an additional <strong>₹{locked}/month</strong>. But you're in control — share only what feels right.",
+  low:"You've locked most of your data, unlocking only <strong>₹{value}/month</strong> from {count} categories. This is your right — privacy first. When you're ready, consenting to more categories unlocks more value and better personalisation.",
+  none:"You've revoked consent for all data categories. Your data value is fully locked at ₹0. On Hushh, you're always in control — share when you're ready, and we'll make sure you get paid fairly for it."
+};
+
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  const idx=['home','explorer','buyers','audit','ai'].indexOf(name);
+  document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+  window.scrollTo(0,0);
+  if(name==='buyers') renderBuyers('all');
+  if(name==='audit') renderAuditLog();
+  if(name==='ai') initForecastCanvas();
+  const titleEl=document.querySelector('#page-'+name+' .page-title');
+  if(titleEl) setTimeout(()=>cipherReveal(titleEl),100);
+}
+
+function renderGrid(){
+  const grid=document.getElementById('data-grid');
+  grid.innerHTML=DATA.map(d=>{
+    const on=consent[d.id];
+    return `<div class="data-card ${on?'on':''}" id="card-${d.id}">
+      <div class="dc-top">
+        <div class="dc-icon-wrap">${d.icon}</div>
+        <button class="dc-toggle ${on?'on':''}" onclick="toggleConsent('${d.id}')" id="toggle-${d.id}"></button>
+      </div>
+      <div class="dc-enc-label">🔐 ${d.id.toUpperCase()}_STREAM</div>
+      <div class="dc-name">${d.name}</div>
+      <div class="dc-desc">${d.desc}</div>
+      <div class="dc-footer">
+        <span class="dc-sens" style="color:${d.sensColor};border-color:${d.sensColor}44;background:${d.sensColor}11">${d.sensitivity}</span>
+        <span class="dc-value ${on?'on':'off'}" id="val-${d.id}">${on?'₹'+d.value+'/mo':'🔒 Locked'}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleConsent(id){
+  consent[id]=!consent[id];
+  logAuditEvent(id,consent[id]?'granted':'revoked');
+  updateCard(id); updateSummary();
+}
+
+function updateCard(id){
+  const on=consent[id];
+  const d=DATA.find(x=>x.id===id);
+  document.getElementById('card-'+id).className='data-card '+(on?'on':'');
+  document.getElementById('toggle-'+id).className='dc-toggle '+(on?'on':'');
+  const val=document.getElementById('val-'+id);
+  val.className='dc-value '+(on?'on':'off');
+  val.textContent=on?'₹'+d.value+'/mo':'🔒 Locked';
+}
+
+function setAll(val){
+  DATA.forEach(d=>{const prev=consent[d.id];consent[d.id]=val;if(prev!==val)logAuditEvent(d.id,val?'granted':'revoked');});
+  DATA.forEach(d=>updateCard(d.id)); updateSummary();
+}
+
+function updateSummary(){
+  const consented=DATA.filter(d=>consent[d.id]);
+  const locked=DATA.filter(d=>!consent[d.id]);
+  const total=consented.reduce((s,d)=>s+d.value,0);
+  const totalAll=DATA.reduce((s,d)=>s+d.value,0);
+  const lockedVal=locked.reduce((s,d)=>s+d.value,0);
+  const pct=Math.round((total/totalAll)*100);
+  document.getElementById('total-value').textContent='₹'+total.toLocaleString('en-IN');
+  document.getElementById('value-meta').textContent=`${consented.length} of ${DATA.length} categories consented`;
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('pct-label').textContent=pct+'%';
+  document.getElementById('home-stat-val').textContent='₹'+total.toLocaleString('en-IN');
+  let key;
+  if(consented.length===0) key='none';
+  else if(pct>=75) key='high';
+  else if(pct>=40) key='mid';
+  else key='low';
+  const text=INSIGHTS[key].replace('{count}',consented.length).replace('{value}',total.toLocaleString('en-IN')).replace('{locked}',lockedVal.toLocaleString('en-IN'));
+  document.getElementById('insight-text').innerHTML=text;
+  if(document.getElementById('page-buyers').classList.contains('active')) renderBuyers(currentFilter);
+  if(document.getElementById('page-audit').classList.contains('active')){
+    document.getElementById('stat-value').textContent='₹'+total.toLocaleString('en-IN');
+  }
+}
+
+let currentFilter='all';
+function filterBuyers(filter){
+  currentFilter=filter;
+  document.querySelectorAll('.filter-tab').forEach((t,i)=>t.classList.toggle('active',['all','consented','locked'][i]===filter));
+  renderBuyers(filter);
+}
+
+function renderBuyers(filter){
+  const grid=document.getElementById('buyers-grid');
+  let cats=DATA;
+  if(filter==='consented') cats=DATA.filter(d=>consent[d.id]);
+  if(filter==='locked') cats=DATA.filter(d=>!consent[d.id]);
+  if(cats.length===0){grid.innerHTML=`<div style="color:var(--text-muted);padding:2rem;grid-column:1/-1">No categories in this filter.</div>`;return;}
+  grid.innerHTML=cats.map(d=>{
+    const on=consent[d.id];
+    const buyersHtml=on
+      ?d.buyers.map(b=>`<div class="buyer-item"><span class="buyer-type-badge">${b.type}</span><div class="buyer-info"><div class="buyer-name">${b.name}</div><div class="buyer-reason">${b.reason}</div></div></div>`).join('')
+      :`<div class="locked-overlay">🔒 Consent required to reveal buyer data</div>`;
+    return `<div class="buyer-cat-card ${on?'':'locked'}">
+      <div class="bcc-header">
+        <div class="bcc-left">
+          <div class="bcc-icon">${d.icon}</div>
+          <div><div class="bcc-name">${d.name}</div><span style="font-size:0.7rem;color:${d.sensColor};font-weight:600">${d.sensitivity} sensitivity</span></div>
+        </div>
+        <div class="bcc-val ${on?'':'locked-val'}">${on?'₹'+d.value+'/mo':'Locked'}</div>
+      </div>
+      <div class="bcc-buyers">${buyersHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+renderGrid(); renderBuyers('all'); renderAuditLog();
+
+// ══════════════════════════════════════════════════════
+// KAI AI INTELLIGENCE ENGINE
+// ══════════════════════════════════════════════════════
+function typewriterStream(el,html){
+  el.innerHTML='';
+  const temp=document.createElement('div'); temp.innerHTML=html;
+  const text=temp.innerHTML; let i=0;
+  const interval=setInterval(()=>{
+    el.innerHTML=text.slice(0,i)+'<span class="ai-streaming"><span></span><span></span><span></span></span>';
+    i+=3;
+    if(i>=text.length){el.innerHTML=html;clearInterval(interval);}
+  },18);
+}
+
+function buildConsentContext(){
+  const on=DATA.filter(d=>consent[d.id]);
+  const off=DATA.filter(d=>!consent[d.id]);
+  const total=on.reduce((s,d)=>s+d.value,0);
+  return{consented:on.map(d=>`${d.name} (₹${d.value}/mo, ${d.sensitivity} sensitivity)`).join(', '),locked:off.map(d=>d.name).join(', '),totalValue:total,count:on.length,pct:Math.round((total/DATA.reduce((s,d)=>s+d.value,0))*100)};
+}
+
+async function callClaude(systemPrompt,userPrompt){
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:systemPrompt,messages:[{role:'user',content:userPrompt}]})
+  });
+  const data=await res.json();
+  return data.content?.[0]?.text||'';
+}
+
+async function runDataShadow(){
+  const btn=document.getElementById('shadow-btn');
+  const output=document.getElementById('shadow-output');
+  const tagsEl=document.getElementById('shadow-tags');
+  btn.disabled=true; btn.innerHTML='<span class="ai-streaming"><span></span><span></span><span></span></span> Profiling...';
+  output.innerHTML='<div class="ai-placeholder">Running AI inference · Reconstructing your data shadow<span class="ai-streaming"><span></span><span></span><span></span></span></div>';
+  tagsEl.innerHTML='';
+  const ctx=buildConsentContext();
+  const system=`You are a dark, precise AI that describes how advertising algorithms and data brokers see a person based on their data consent footprint. Be specific, chilling, and clinical. Use short punchy sentences. Never be vague. Focus on what can be inferred about their lifestyle, psychology, financial status, health, and behavior. Respond in plain text only — no markdown, no asterisks, no bullet points. Max 4 sentences.`;
+  const user=`This person has consented to share: ${ctx.consented||'nothing'}. They have locked: ${ctx.locked||'nothing'}. Their unlocked monthly data value is ₹${ctx.totalValue}. Write their data shadow profile — what ad algorithms know and infer about them as a person.`;
+  try{
+    const raw=await callClaude(system,user);
+    const formatted=raw.replace(/₹([\d,]+)/g,'<span class="highlight-green">₹$1</span>').replace(/\b(HIGH|CRITICAL|SEVERE|WARNING)\b/gi,'<span class="highlight-red">$1</span>');
+    output.innerHTML=`<div class="ai-output-text">${formatted}</div>`;
+    const highRisk=DATA.filter(d=>consent[d.id]&&(d.sensitivity==='Very High'||d.sensitivity==='High'));
+    const medRisk=DATA.filter(d=>consent[d.id]&&d.sensitivity==='Medium');
+    const lowRisk=DATA.filter(d=>consent[d.id]&&d.sensitivity==='Low');
+    tagsEl.innerHTML=highRisk.map(d=>`<span class="shadow-tag high">${d.id.toUpperCase()}</span>`).join('')+medRisk.map(d=>`<span class="shadow-tag med">${d.id.toUpperCase()}</span>`).join('')+lowRisk.map(d=>`<span class="shadow-tag low">${d.id.toUpperCase()}</span>`).join('');
+  }catch(e){output.innerHTML=`<div class="ai-output-text" style="color:var(--red)">API Error · ${e.message}</div>`;}
+  btn.disabled=false; btn.innerHTML='<span class="btn-icon">⚡</span> Regenerate';
+}
+
+async function runRiskScore(){
+  const btn=document.getElementById('risk-btn');
+  btn.disabled=true; btn.innerHTML='<span class="ai-streaming"><span></span><span></span><span></span></span> Scanning...';
+  document.getElementById('risk-num').style.color='var(--text-dim)'; document.getElementById('risk-num').textContent='--';
+  document.getElementById('risk-label').textContent='Analyzing...';
+  const ctx=buildConsentContext();
+  const system=`You are a data privacy risk assessment AI. Given a person's data consent profile, output ONLY valid JSON — no markdown, no backticks, no explanation. The JSON must have exactly: {"score":<integer 0-100>,"level":"<LOW|MEDIUM|HIGH|CRITICAL>","summary":"<one sentence, max 15 words>","categories":[{"name":"<category name>","risk":<0-100>,"color":"<hex>"}]} where categories are only the consented ones, max 6 entries, ordered by risk descending.`;
+  const user=`Consented data: ${ctx.consented||'none'}. Locked: ${ctx.locked||'none'}. Assess exploitation risk.`;
+  try{
+    const raw=await callClaude(system,user);
+    const clean=raw.replace(/```json|```/g,'').trim();
+    const parsed=JSON.parse(clean);
+    const score=Math.min(100,Math.max(0,parsed.score));
+    const scoreColor=score>=75?'var(--red)':score>=50?'var(--amber)':'var(--green)';
+    const arc=document.getElementById('gauge-arc');
+    const needle=document.getElementById('gauge-needle');
+    arc.style.strokeDashoffset=220-(score/100)*220;
+    const needleAngle=-90+(score/100)*180;
+    needle.style.transform=`rotate(${needleAngle}deg)`; needle.style.stroke=scoreColor;
+    document.getElementById('risk-num').textContent=score; document.getElementById('risk-num').style.color=scoreColor;
+    document.getElementById('risk-label').textContent=`${parsed.level||'MEDIUM'} Risk · ${parsed.summary||''}`;
+    document.getElementById('risk-label').style.color=scoreColor;
+    const bars=document.getElementById('risk-bars');
+    bars.innerHTML=(parsed.categories||[]).map(c=>{
+      const barColor=c.risk>=75?'var(--red)':c.risk>=50?'var(--amber)':'var(--green)';
+      return `<div class="risk-bar-row"><div class="risk-bar-name">${c.name.substring(0,12)}</div><div class="risk-bar-track"><div class="risk-bar-fill" style="width:0%;background:${barColor}" data-w="${c.risk}"></div></div><div class="risk-bar-val" style="color:${barColor}">${c.risk}</div></div>`;
+    }).join('');
+    setTimeout(()=>{bars.querySelectorAll('.risk-bar-fill').forEach(b=>b.style.width=b.dataset.w+'%');},50);
+  }catch(e){document.getElementById('risk-label').textContent=`Error · ${e.message.substring(0,40)}`; document.getElementById('risk-label').style.color='var(--red)';}
+  btn.disabled=false; btn.innerHTML='<span class="btn-icon">🔍</span> Rescan';
+}
+
+let forecastCanvasInitialized=false;
+function initForecastCanvas(){
+  const canvas=document.getElementById('forecast-canvas'); if(!canvas) return;
+  const W=canvas.offsetWidth||400;
+  canvas.width=W*window.devicePixelRatio; canvas.height=180*window.devicePixelRatio;
+  canvas.style.width=W+'px'; canvas.style.height='180px';
+  const ctx=canvas.getContext('2d'); ctx.scale(window.devicePixelRatio,window.devicePixelRatio);
+  drawEmptyForecastGrid(ctx,W,180); forecastCanvasInitialized=true;
+}
+function drawEmptyForecastGrid(ctx,W,H){
+  ctx.clearRect(0,0,W,H);
+  const pad={l:40,r:10,t:10,b:20},iW=W-pad.l-pad.r,iH=H-pad.t-pad.b;
+  ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=0.5;
+  for(let i=0;i<=4;i++){const y=pad.t+(iH/4)*i;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+iW,y);ctx.stroke();}
+  for(let i=0;i<=11;i++){const x=pad.l+(iW/11)*i;ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,pad.t+iH);ctx.stroke();}
+}
+async function runForecast(){
+  const btn=document.getElementById('forecast-btn');
+  const output=document.getElementById('forecast-output');
+  btn.disabled=true; btn.innerHTML='<span class="ai-streaming"><span></span><span></span><span></span></span> Computing...';
+  output.innerHTML='<div class="ai-placeholder">Running forecast · Claude is modeling 12-month projection<span class="ai-streaming"><span></span><span></span><span></span></span></div>';
+  const ctx=buildConsentContext();
+  const system=`You are a data economics AI. Output ONLY valid JSON — no markdown, no backticks. The JSON must have: {"months":[12 integers, monthly projected value in INR],"market":[12 integers, market rate ~40% less],"peak_month":<1-12>,"growth_pct":<integer>,"commentary":"<2 sentences max, 25 words total>"}`;
+  const user=`Current monthly data value: ₹${ctx.totalValue}. Consented categories: ${ctx.consented||'none'}. Project 12-month data value trajectory for this Indian user on Hushh.`;
+  try{
+    const raw=await callClaude(system,user);
+    const clean=raw.replace(/```json|```/g,'').trim();
+    const parsed=JSON.parse(clean);
+    drawForecastChart(parsed.months,parsed.market);
+    output.innerHTML=`<div class="ai-output-text">Projected annual earnings: <span class="highlight-green">₹${(parsed.months||[]).reduce((a,b)=>a+b,0).toLocaleString('en-IN')}</span> · Peak month: <strong>Month ${parsed.peak_month||'?'}</strong> · Growth: <span class="highlight-cyan">+${parsed.growth_pct||0}%</span><br><br>${parsed.commentary||''}</div>`;
+  }catch(e){output.innerHTML=`<div class="ai-output-text" style="color:var(--red)">Forecast error · ${e.message}</div>`;}
+  btn.disabled=false; btn.innerHTML='<span class="btn-icon">📈</span> Reforecast';
+}
+function drawForecastChart(myData,marketData){
+  const canvas=document.getElementById('forecast-canvas'); if(!canvas) return;
+  const W=canvas.offsetWidth||400;
+  canvas.width=W*window.devicePixelRatio; canvas.height=180*window.devicePixelRatio;
+  const ctx=canvas.getContext('2d'); ctx.scale(window.devicePixelRatio,window.devicePixelRatio);
+  const pad={l:44,r:10,t:12,b:20},iW=W-pad.l-pad.r,iH=180-pad.t-pad.b;
+  const allVals=[...myData,...marketData],maxVal=Math.max(...allVals)*1.1;
+  function toX(i){return pad.l+(i/11)*iW;} function toY(v){return pad.t+iH-((v-0)/(maxVal-0))*iH;}
+  ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=0.5;
+  for(let i=0;i<=4;i++){const y=pad.t+(iH/4)*i;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+iW,y);ctx.stroke();ctx.fillStyle='rgba(148,163,184,0.5)';ctx.font=`10px 'JetBrains Mono',monospace`;ctx.textAlign='right';const val=Math.round(maxVal-(maxVal/4)*i);ctx.fillText('₹'+(val>=1000?Math.round(val/100)/10+'k':val),pad.l-4,y+3);}
+  // opportunity zone
+  ctx.beginPath();
+  myData.forEach((v,i)=>{i===0?ctx.moveTo(toX(i),toY(v)):ctx.lineTo(toX(i),toY(v));});
+  marketData.slice().reverse().forEach((v,i)=>ctx.lineTo(toX(11-i),toY(v)));
+  ctx.closePath(); ctx.fillStyle='rgba(16,185,129,0.05)'; ctx.fill();
+  // market line
+  ctx.beginPath(); marketData.forEach((v,i)=>{i===0?ctx.moveTo(toX(i),toY(v)):ctx.lineTo(toX(i),toY(v));});
+  ctx.strokeStyle='rgba(139,92,246,0.45)'; ctx.lineWidth=1; ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]);
+  // projected line
+  ctx.beginPath(); myData.forEach((v,i)=>{i===0?ctx.moveTo(toX(i),toY(v)):ctx.lineTo(toX(i),toY(v));});
+  ctx.strokeStyle='#06B6D4'; ctx.lineWidth=2; ctx.stroke();
+  myData.forEach((v,i)=>{ctx.beginPath();ctx.arc(toX(i),toY(v),3,0,Math.PI*2);ctx.fillStyle='#06B6D4';ctx.shadowColor='#06B6D4';ctx.shadowBlur=8;ctx.fill();ctx.shadowBlur=0;});
+  const peakIdx=myData.indexOf(Math.max(...myData));
+  ctx.fillStyle='var(--green)'; ctx.font=`bold 10px 'JetBrains Mono',monospace`; ctx.textAlign='center';
+  ctx.fillText('▲ PEAK',toX(peakIdx),toY(myData[peakIdx])-8);
+}
+
+let breachInterval=null;
+const CORPS=[
+  {name:'Meta Ads',cat:'social',action:'scraped interest graph'},{name:'Google',cat:'device',action:'logged app usage pattern'},
+  {name:'Swiggy',cat:'email',action:'extracted order receipt data'},{name:'Ola',cat:'location',action:'read home/work zone'},
+  {name:'HDFC Bank',cat:'finance',action:'pulled spending behavior signal'},{name:'Amazon',cat:'shopping',action:'accessed purchase pattern'},
+  {name:'Star Health',cat:'health',action:'ingested fitness signal'},{name:'Jio',cat:'device',action:'monitored screen time'},
+  {name:'Naukri',cat:'identity',action:'harvested demographic profile'},{name:'Netflix',cat:'social',action:'read content preference signal'},
+  {name:'Zerodha',cat:'finance',action:'analyzed savings behavior'},{name:'Practo',cat:'health',action:'processed health activity data'},
+  {name:'MagicBricks',cat:'location',action:'accessed commute route data'},{name:'Zomato',cat:'email',action:'parsed food receipt history'},
+  {name:'CIBIL',cat:'finance',action:'enriched credit score from spend data'},
+];
+function toggleBreachFeed(){
+  const btn=document.getElementById('breach-toggle-btn');
+  const dot=document.getElementById('breach-dot');
+  const label=document.getElementById('breach-ticker-label');
+  const eventsEl=document.getElementById('breach-events');
+  if(breachInterval){
+    clearInterval(breachInterval); breachInterval=null;
+    btn.innerHTML='<span class="btn-icon">▶</span> Start Feed'; btn.style.borderColor='rgba(239,68,68,0.4)'; btn.style.color='var(--red)';
+    dot.style.background='var(--text-dim)'; dot.style.boxShadow='none'; dot.style.animation='none';
+    label.textContent='Feed Offline · Start feed to monitor exploitation'; label.style.color='var(--red)'; return;
+  }
+  eventsEl.innerHTML='';
+  btn.innerHTML='<span class="btn-icon">■</span> Stop Feed'; btn.style.borderColor='rgba(16,185,129,0.4)'; btn.style.color='var(--green)';
+  dot.style.background='var(--red)'; dot.style.boxShadow='0 0 8px var(--red)'; dot.style.animation='blink 0.8s step-end infinite';
+  label.style.color='var(--red)';
+  let eventCount=0;
+  function addBreachEvent(){
+    const consentedCorps=CORPS.filter(c=>consent[c.cat]);
+    if(consentedCorps.length===0){label.textContent='No active channels · All data is locked';label.style.color='var(--green)';return;}
+    const corp=consentedCorps[Math.floor(Math.random()*consentedCorps.length)];
+    const now=new Date();
+    const ts=now.toLocaleTimeString('en-GB',{hour12:false})+'.'+String(now.getMilliseconds()).padStart(3,'0');
+    eventCount++; label.textContent=`Live · ${eventCount} access events this session`;
+    const row=document.createElement('div'); row.className='breach-event';
+    row.innerHTML=`<span class="breach-time">${ts}</span><span class="breach-corp">${corp.name}</span><span class="breach-action">${corp.action}</span><span class="breach-cat">[${corp.cat}]</span>`;
+    eventsEl.insertBefore(row,eventsEl.firstChild);
+    while(eventsEl.children.length>20) eventsEl.removeChild(eventsEl.lastChild);
+  }
+  addBreachEvent(); breachInterval=setInterval(addBreachEvent,800+Math.random()*1200);
+  function varyInterval(){if(!breachInterval)return;clearInterval(breachInterval);breachInterval=setInterval(()=>{addBreachEvent();},600+Math.random()*1800);setTimeout(varyInterval,4000+Math.random()*3000);}
+  setTimeout(varyInterval,3000);
+}
+</script>
+</body>
+</html>

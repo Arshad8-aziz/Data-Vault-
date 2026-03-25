@@ -1,0 +1,117 @@
+# ============================================================
+# DATA//VAULT · Hushh × Kai — Requirements
+# ============================================================
+# This is a zero-build, single-file frontend project.
+# There are NO npm packages or pip packages to install.
+#
+# All external resources are loaded via CDN at runtime.
+# This file documents every external dependency, its version,
+# source URL, and purpose for auditability and reproducibility.
+# ============================================================
+
+
+# ── FONTS (Google Fonts CDN) ─────────────────────────────────
+
+Plus Jakarta Sans @ variable (wght 300–800)
+  Source : https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800
+  Usage  : Primary UI typeface — headings, body, buttons
+
+JetBrains Mono @ variable (wght 300–500)
+  Source : https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500
+  Usage  : Monospace typeface — hashes, timestamps, labels, code values
+
+
+# ── AI / API ─────────────────────────────────────────────────
+
+Anthropic Claude API
+  Endpoint : https://api.anthropic.com/v1/messages
+  Model    : claude-sonnet-4-20250514
+  Version  : anthropic-version: 2023-06-01
+  Max Tokens: 1000 per request
+  Auth     : x-api-key header (user-supplied)
+  Header   : anthropic-dangerous-direct-browser-calls: true
+  Usage    : Data Shadow Profile, Exploitation Risk Score,
+             12-Month Value Forecast (all in Kai AI tab)
+  Docs     : https://docs.anthropic.com/en/api/getting-started
+
+
+# ── BROWSER APIS (built-in, no install required) ─────────────
+
+Canvas 2D API
+  Usage  : Background particle/grid animation (bg-canvas),
+           12-month value forecast line chart (forecast-canvas)
+
+CSS Backdrop-filter
+  Usage  : Glassmorphism blur effects on all card surfaces and nav
+  Requires: Chrome 76+, Firefox 103+, Safari 15.4+
+
+CSS Custom Properties (Variables)
+  Usage  : Design token system for colors, glass surfaces, typography
+
+Fetch API
+  Usage  : Claude API calls from callClaude() function
+
+Web Animations (CSS keyframes)
+  Usage  : Boot screen, pulse, blink, dot-bounce, fade-up, slide-in
+
+
+# ── DEVELOPMENT TOOLS (optional, for local serving) ──────────
+
+# Any of the following can be used to serve the project locally.
+# None are required if opening index_glass.html directly in browser.
+
+Node.js >= 18.0.0
+  Install : https://nodejs.org
+
+serve (npm)
+  Version : ^14.0.0
+  Install : npm install -g serve
+  Run     : serve .
+
+# OR
+
+Python >= 3.8
+  Install : https://python.org
+  Run     : python3 -m http.server 8080
+
+# OR
+
+Live Server (VS Code Extension)
+  ID      : ritwickdey.LiveServer
+  Install : Via VS Code Extensions marketplace
+
+
+# ── SECURITY NOTES ───────────────────────────────────────────
+
+# The Anthropic API key must be supplied by the user at runtime.
+# NEVER commit a real API key to version control.
+#
+# For production deployments, replace the direct browser API call
+# in callClaude() with a backend proxy endpoint, e.g.:
+#
+#   POST /api/claude  →  your server  →  Anthropic API
+#
+# Recommended backend options:
+#   - Node.js + Express
+#   - Python + FastAPI
+#   - Cloudflare Workers
+#   - Next.js API Routes
+
+
+# ── ENVIRONMENT VARIABLES (if using a backend proxy) ─────────
+
+# ANTHROPIC_API_KEY=sk-ant-...       # Your Anthropic secret key
+# ANTHROPIC_MODEL=claude-sonnet-4-20250514
+# ANTHROPIC_MAX_TOKENS=1000
+# ANTHROPIC_API_VERSION=2023-06-01
+
+
+# ── PROJECT METADATA ─────────────────────────────────────────
+
+Project     : DATA//VAULT
+Version     : 1.0.0
+Hackathon   : Hushh × Kai 2026 — Challenge 05
+Entry type  : Single-file frontend (HTML + CSS + JS)
+Build tools : None
+Package mgr : None
+License     : MIT
